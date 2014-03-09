@@ -21,7 +21,7 @@ public class GCEBackendServlet extends HttpServlet {
 		GCEBackendService reportService = new GCEBackendService();
 		Execution execution = executionRepository.get(executionId);
 		try {
-			reportService.startReport(execution);
+			reportService.startExecution(execution);
 		} catch (InterruptedException | GCEBackendException e) {
 			throw new ServletException("Unable to start GCE backend", e);
 		}

@@ -76,12 +76,12 @@ public class WatchTaskServlet extends HttpServlet {
 			try {
 				service.deleteDisk(execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(), execution.getProjectId());
 			} catch (Throwable t) {
-				logger.log(Level.WARNING, "Unable to delete disk for execution " + execution.getId());
+				logger.log(isTimeout ? Level.WARNING : Level.FINER, "Unable to delete disk for execution " + execution.getId());
 			}
 			try {
 				service.deleteInstance(execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(), execution.getProjectId());
 			} catch (Throwable t) {
-				logger.log(Level.WARNING, "Unable to delete instance for execution " + execution.getId());
+                logger.log(isTimeout ? Level.WARNING : Level.FINER, "Unable to delete instance for execution " + execution.getId());
 			}
 			execution.setDone(true);
 			executionRepository.save(execution);

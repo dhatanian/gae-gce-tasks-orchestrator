@@ -42,8 +42,5 @@ public class BackendResultServlet extends HttpServlet {
 		}
 		logger.log(level, "Execution ended with result : "+execution.getBackendResult().getResultCode());
 		executionRepository.save(execution);
-		GCEBackendService service = new GCEBackendService();
-        //TODO do this in a task queue
-		service.deleteDisk(execution.buildDiskAndInstanceName(),execution.getGceConfiguration().getZone(), execution.getProjectId());
 	}
 }

@@ -9,11 +9,6 @@ public class ExecutionBackendResult {
 
     public ExecutionBackendResult() {
     }
-    
-    public ExecutionBackendResult(String executionId, Integer resultCode) {
-        this.executionId = executionId;
-        this.resultCode = resultCode;
-    }
 
     public String getExecutionId() {
         return executionId;

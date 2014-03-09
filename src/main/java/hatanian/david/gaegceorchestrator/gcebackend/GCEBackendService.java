@@ -40,13 +40,12 @@ public class GCEBackendService {
 	private static final Logger logger = Logger.getLogger(GCEBackendService.class.getName());
 
     //TODO set configurable scopes
-    //TODO change start script
     public Compute getCompute(){
         return new Compute.Builder(transport, factory, oAuthHelper.getAppIdentityCredential(Arrays.asList("https://www.googleapis.com/auth/compute",
                 "https://www.googleapis.com/auth/devstorage.full_control"))).setApplicationName(OAuthHelper.APPNAME).build();
     }
 
-	public void startReport(Execution execution) throws IOException, InterruptedException, GCEBackendException {
+	public void startExecution(Execution execution) throws IOException, InterruptedException, GCEBackendException {
 		startGceInstance(execution);
 		startExecutionWatchingTask(execution.getId());
 	}
@@ -60,7 +59,7 @@ public class GCEBackendService {
 		execution.configureDiskAndInstanceName();
 		createDisk(execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(),execution.getGceConfiguration().getImage(),execution.getProjectId());
 		// 2. Poll to wait until the disk is ready or until we time out.
-		if (!waitForDisk(execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(), null)) {
+		if (!waitForDisk(execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(), execution.getProjectId())) {
 			throw new GCEBackendException("Unable to create disk");
 		}
 
