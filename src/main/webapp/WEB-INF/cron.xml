@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+	<cron>
+		<url>/admin/cron</url>
+		<description>Start scheduled tasks
+		</description>
+		<schedule>every day 00:00</schedule>
+	</cron>
+	<cron>
+		<url>/admin/tasks/checkexecutions</url>
+		<description>Clean up remaining instances or disks</description>
+		<schedule>every 4 hours</schedule>
+	</cron>
+</cronentries>

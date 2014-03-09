@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<queue-entries>
+	<queue>
+		<name>default</name>
+		<rate>1/s</rate>
+		<bucket-size>10</bucket-size>
+		<max-concurrent-requests>10</max-concurrent-requests>
+		<retry-parameters>
+			<min-backoff-seconds>2</min-backoff-seconds>
+			<max-backoff-seconds>20</max-backoff-seconds>
+			<max-doublings>2</max-doublings>
+		</retry-parameters>
+	</queue>
+	<queue>
+		<name>checkexecutions</name>
+		<rate>10/s</rate>
+		<bucket-size>10</bucket-size>
+		<max-concurrent-requests>10</max-concurrent-requests>
+		<retry-parameters>
+			<min-backoff-seconds>10</min-backoff-seconds>
+			<max-backoff-seconds>40</max-backoff-seconds>
+			<max-doublings>2</max-doublings>
+		</retry-parameters>
+	</queue>
+</queue-entries>
