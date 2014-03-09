@@ -15,9 +15,8 @@ import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Query;
 
 public class StorageManager<E> {
-	private static final int COUNT_MANY_PAGE_SIZE = 100000;
 	private final Class<E> c;
-	private static Set<String> classes = new HashSet<String>();
+	private static Set<String> classes = new HashSet<>();
 
 	public StorageManager(Class<E> c) {
 		this.c = c;
@@ -39,13 +38,6 @@ public class StorageManager<E> {
 	public E save(E e) {
 		ofy().save().entity(e).now();
 		return e;
-
-		// Dawid - in case we need transaction
-		/*
-		 * Objectify ofy = ObjectifyService.beginTransaction(); try {
-		 * ofy.put(e); ofy.getTxn().commit(); } finally { if
-		 * (ofy.getTxn().isActive()) { ofy.getTxn().rollback(); } } return e;
-		 */
 	}
 
 	public void saveAll(Iterable<? extends E> list) {
@@ -53,11 +45,11 @@ public class StorageManager<E> {
 	}
 
 	public E get(Long id) {
-		return ofy().load().type(c).id(id).get();
+		return ofy().load().type(c).id(id).now();
 	}
 
 	public E get(String id) {
-		return ofy().load().type(c).id(id).get();
+		return ofy().load().type(c).id(id).now();
 	}
 
 	public void delete(E e) {
@@ -122,49 +114,5 @@ public class StorageManager<E> {
 			query = query.filter(filterColumns[i], filterValues[i]);
 		}
 		return query.limit(limit).list();
-	}
-
-	public E getWithoutCache(String id) {
-		return ofy().cache(false).load().type(c).id(id).get();
-	}
-
-	public int countMany(String byString, Object byObject) {
-		return countMany(new String[] { byString }, new Object[] { byObject });
-	}
-
-	public int countMany(String[] byStrings, Object[] byObject) {
-		int total = 0;
-		Cursor cursor = null;
-		boolean carryOnToNextCursor = false;
-		do {
-			carryOnToNextCursor = false;
-			Query<E> query = ofy().load().type(c).limit(COUNT_MANY_PAGE_SIZE);
-			for (int i = 0; i < byStrings.length; i++) {
-				query = query.filter(byStrings[i], byObject[i]);
-			}
-			if (cursor != null) {
-				query = query.startAt(cursor);
-			}
-
-			QueryResultIterator<Key<E>> iterator = query.keys().iterator();
-			while (iterator.hasNext()) {
-				iterator.next();
-				total++;
-				carryOnToNextCursor = true;
-			}
-			cursor = iterator.getCursor();
-		} while (carryOnToNextCursor);
-		return total;
-	}
-
-	public QueryResultIterator<E> iterate(String[] columns, Object[] values, int limit, Cursor cursor) {
-		Query<E> query = ofy().load().type(c).limit(limit);
-		if(cursor!=null){
-			query = query.startAt(cursor);
-		}
-		for (int i = 0; i < columns.length; i++) {
-			query = query.filter(columns[i], values[i]);
-		}
-		return query.iterator();
 	}
 }

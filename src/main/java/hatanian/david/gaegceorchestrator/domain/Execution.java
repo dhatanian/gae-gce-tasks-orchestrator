@@ -6,8 +6,6 @@ import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendService;
 import java.util.Date;
 import java.util.UUID;
 
-//TODO add parameters
-//TODO add custom timeout, machine type, zone etc
 //TODO add password for the backend result code --> HASH
 @Entity
 @Unindex
@@ -17,18 +15,29 @@ public class Execution {
     private Date startDate = new Date();
     private Date endDate;
     private String requester;
+    private String resultBucket;
 
+    private UserScript userScript;
+    private GCEConfiguration gceConfiguration;
     private ExecutionBackendResult backendResult;
 
     @Index
     private State state = State.STARTED;
     @Index
     private Boolean done = false;
-    @Index
     private String diskAndInstanceName;
+    private String projectId;
 
     public Execution() {
         super();
+    }
+
+    public GCEConfiguration getGceConfiguration() {
+        return gceConfiguration;
+    }
+
+    public void setGceConfiguration(GCEConfiguration gceConfiguration) {
+        this.gceConfiguration = gceConfiguration;
     }
 
     public ExecutionBackendResult getBackendResult() {
@@ -88,6 +97,9 @@ public class Execution {
     }
 
     public String getDiskAndInstanceName() {
+        if(diskAndInstanceName==null){
+            buildDiskAndInstanceName();
+        }
         return diskAndInstanceName;
     }
 
@@ -105,5 +117,29 @@ public class Execution {
     @OnSave
     public void configureDiskAndInstanceName() {
         setDiskAndInstanceName(buildDiskAndInstanceName());
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public UserScript getUserScript() {
+        return userScript;
+    }
+
+    public void setUserScript(UserScript userScript) {
+        this.userScript = userScript;
+    }
+
+    public String getResultBucket() {
+        return resultBucket;
+    }
+
+    public void setResultBucket(String resultBucket) {
+        this.resultBucket = resultBucket;
     }
 }

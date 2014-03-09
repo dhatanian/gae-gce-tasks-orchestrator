@@ -1,9 +1,7 @@
 package hatanian.david.gaegceorchestrator;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,7 +17,7 @@ import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendService;
 public class WatchTaskServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -3899740007874060169L;
-	private StorageManager<Execution> executionRepository = new StorageManager<Execution>(Execution.class);
+	private StorageManager<Execution> executionRepository = new StorageManager<>(Execution.class);
 
 	private static final Logger logger = Logger.getLogger(WatchTaskServlet.class.getName());
 	// 4 hours max of execution
@@ -45,65 +43,9 @@ public class WatchTaskServlet extends HttpServlet {
 				}
 			} else {
 				checkAllExecutions(service);
-				checkGCEInstancesAndDisks(service);
 			}
 		} catch (InterruptedException e) {
 			throw new ServletException("Interrupted while sleeping", e);
-		}
-	}
-
-	private void checkGCEInstancesAndDisks(GCEBackendService service) throws IOException {
-		
-		// check all GCE instances, find those for whom there is no execution or
-		// execution is more than 4 hours, turn them off. Same thing for disks
-		List<String> diskNames = service.findDisks();
-		List<String> instanceNames = service.findRunningInstances();
-
-		Set<String> diskOrInstanceNames = new HashSet<>(diskNames);
-		diskOrInstanceNames.addAll(instanceNames);
-
-		for (String diskOrInstanceName : diskOrInstanceNames) {
-			logger.info("Checking if disk/instance "+diskOrInstanceName+" needs to be here");
-			List<Execution> executions = executionRepository.getBy("diskOrInstanceName", diskOrInstanceName);
-			if (executions.isEmpty() || executions.size() > 1) {
-				logger.info("There are "+executions.size()+" executions corresponding to this instance and disk. We will delete those");
-				if (diskNames.contains(diskOrInstanceName)) {
-					try {
-						service.deleteDisk(diskOrInstanceName);
-					} catch (Throwable t) {
-						logger.log(Level.WARNING, "Unable to delete disk " + diskOrInstanceName);
-					}
-				}
-				if (instanceNames.contains(diskOrInstanceName)) {
-					try {
-						service.deleteInstance(diskOrInstanceName);
-					} catch (Throwable t) {
-						logger.log(Level.WARNING, "Unable to delete instance " + diskOrInstanceName);
-					}
-				}
-			} else {
-				Execution execution = executions.get(0);
-				// If the execution is not done then it will be handled by the
-				// usual timeout
-				logger.info("Found corresponding execution "+execution.getId());
-				if (execution.getDone()) {
-					logger.info("Execution is marked as done, we'll delete the instance and disk");
-					if (diskNames.contains(diskOrInstanceName)) {
-						try {
-							service.deleteDisk(diskOrInstanceName);
-						} catch (Throwable t) {
-							logger.log(Level.WARNING, "Unable to delete disk " + diskOrInstanceName);
-						}
-					}
-					if (instanceNames.contains(diskOrInstanceName)) {
-						try {
-							service.deleteInstance(diskOrInstanceName);
-						} catch (Throwable t) {
-							logger.log(Level.WARNING, "Unable to delete instance " + diskOrInstanceName);
-						}
-					}
-				}
-			}
 		}
 	}
 
@@ -132,12 +74,12 @@ public class WatchTaskServlet extends HttpServlet {
 			}
 			
 			try {
-				service.deleteDisk(execution.buildDiskAndInstanceName());
+				service.deleteDisk(execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(), execution.getProjectId());
 			} catch (Throwable t) {
 				logger.log(Level.WARNING, "Unable to delete disk for execution " + execution.getId());
 			}
 			try {
-				service.deleteInstance(execution.buildDiskAndInstanceName());
+				service.deleteInstance(execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(), execution.getProjectId());
 			} catch (Throwable t) {
 				logger.log(Level.WARNING, "Unable to delete instance for execution " + execution.getId());
 			}

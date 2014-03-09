@@ -4,9 +4,12 @@ import com.googlecode.objectify.annotation.Embed;
 
 @Embed
 public class ExecutionBackendResult {
-	private String executionId;
-	private Integer resultCode;
+    private String executionId;
+    private Integer resultCode;
 
+    public ExecutionBackendResult() {
+    }
+    
     public ExecutionBackendResult(String executionId, Integer resultCode) {
         this.executionId = executionId;
         this.resultCode = resultCode;

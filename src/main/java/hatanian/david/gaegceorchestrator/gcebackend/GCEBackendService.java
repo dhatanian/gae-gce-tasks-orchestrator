@@ -32,19 +32,14 @@ import hatanian.david.gaegceorchestrator.domain.Execution;
 import hatanian.david.gaegceorchestrator.oauth.OAuthHelper;
 
 public class GCEBackendService {
-	private static final String ZONE = "us-central1-a";
 	public static final String NAME_PREFIX = "gce-orchestrator-";
 	private HttpTransport transport = new UrlFetchTransport();
 	private JsonFactory factory = new GsonFactory();
     private OAuthHelper oAuthHelper = new OAuthHelper();
 
 	private static final Logger logger = Logger.getLogger(GCEBackendService.class.getName());
-	private static final String MACHINE_TYPE = "n1-highmem-8";
-	private static final String SOURCE_IMAGE = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-7-wheezy-v20131120";
 
     //TODO set configurable scopes
-    //TODO set configurable machine type and zone
-    //TODO set configurable source image
     //TODO change start script
     public Compute getCompute(){
         return new Compute.Builder(transport, factory, oAuthHelper.getAppIdentityCredential(Arrays.asList("https://www.googleapis.com/auth/compute",
@@ -62,26 +57,28 @@ public class GCEBackendService {
 
 	private void startGceInstance(Execution execution) throws IOException, InterruptedException, GCEBackendException {
 		// 1. Create new disk.
-		String diskAndInstanceName = execution.buildDiskAndInstanceName();
-		createDisk(diskAndInstanceName);
+		execution.configureDiskAndInstanceName();
+		createDisk(execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(),execution.getGceConfiguration().getImage(),execution.getProjectId());
 		// 2. Poll to wait until the disk is ready or until we time out.
-		if (!waitForDisk(diskAndInstanceName)) {
+		if (!waitForDisk(execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(), null)) {
 			throw new GCEBackendException("Unable to create disk");
 		}
 
+        String executionScript= ScriptBuilder.getScript(execution, getResultUrl());
+
 		// 3. Create instance
-		createInstance(diskAndInstanceName, execution);
-		if (!waitForInstance(diskAndInstanceName)) {
+		createInstance(execution.getProjectId(), execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(),execution.getGceConfiguration().getMachineType(),executionScript);
+		if (!waitForInstance(execution.getDiskAndInstanceName(),execution.getGceConfiguration().getZone(),execution.getProjectId())) {
 			throw new GCEBackendException("Unable to create instance");
 		}
 	}
 
-	private boolean waitForInstance(String instanceName) throws InterruptedException {
+	private boolean waitForInstance(String instanceName, String zone, String projectId) throws InterruptedException {
 		long timeout = System.currentTimeMillis() + 2 * 60000L;
 		boolean diskCreated = false;
 
 		while (!diskCreated && System.currentTimeMillis() < timeout) {
-			if (checkInstance(instanceName)) {
+			if (checkInstance(instanceName, zone, projectId)) {
 				diskCreated = true;
 				logger.info("Instance is ready.");
 			} else {
@@ -97,9 +94,9 @@ public class GCEBackendService {
 		}
 	}
 
-	private boolean checkInstance(String instanceName) {
+	private boolean checkInstance(String instanceName, String zone, String projectId) {
 		try {
-			Instance instance = getCompute().instances().get(oAuthHelper.getProjectId(), ZONE, instanceName).execute();
+			Instance instance = getCompute().instances().get(projectId, zone, instanceName).execute();
 			if ("RUNNING".equalsIgnoreCase(instance.getStatus())) {
 				return true;
 			} else {
@@ -112,14 +109,13 @@ public class GCEBackendService {
 		}
 	}
 
-	private void createInstance(String diskAndInstanceName, Execution execution) throws IOException {
-        String projectId = oAuthHelper.getProjectId();
+	private void createInstance(String projectId, String diskAndInstanceName, String zone, String machineType, String executionScript) throws IOException {
 		Instance instance = new Instance();
-		instance.setMachineType("https://www.googleapis.com/compute/v1/projects/" + projectId + "/zones/" + ZONE + "/machineTypes/" + MACHINE_TYPE);
+		instance.setMachineType("https://www.googleapis.com/compute/v1/projects/" + projectId + "/zones/" + zone + "/machineTypes/" + machineType);
 		instance.setName(diskAndInstanceName);
 
 		AttachedDisk disk = new AttachedDisk();
-		disk.setSource("https://www.googleapis.com/compute/v1/projects/" + projectId + "/zones/" + ZONE + "/disks/" + diskAndInstanceName);
+		disk.setSource("https://www.googleapis.com/compute/v1/projects/" + projectId + "/zones/" + zone + "/disks/" + diskAndInstanceName);
 		disk.setBoot(true);
 		disk.setType("PERSISTENT");
 		disk.setMode("READ_WRITE");
@@ -149,33 +145,25 @@ public class GCEBackendService {
 		// then use wget to inform gae of the result
 		// then use gsutil to store the execution log
 		startUpScript.setKey("startup-script");
-		startUpScript.setValue("#! /bin/bash\n" + "cd /root \n " + "apt-get update\n" + "apt-get install -y openjdk-7-jre wget\n"
-				+ "gsutil cp gs://blabla/blabla.jar ./script.jar\n" + "timeout 3h java -jar script.jar " + "TODO another parameter to remove"
-				+ " " + execution.getId() + " " + "TODO replace this old call to isProd" + " &> script.log \n" + "wget -X POST " + getResultUrl() + " --post-data=" + buildJsonResult(execution) + "  \n"
-				+ "gsutil cp script.log gs://blabla/" + execution.getId() + ".log \n" + "gcutil deleteinstance " + diskAndInstanceName + " --zone=" + ZONE + " --project="
-				+ projectId + " --force --nodelete_boot_pd");
+        startUpScript.setValue(executionScript);
 		items.add(startUpScript);
 		metadata.setItems(items);
 
 		instance.setMetadata(metadata);
 
-		getCompute().instances().insert(projectId, ZONE, instance).execute();
-	}
-
-	private String buildJsonResult(Execution execution) {
-		return "'{\"executionId\":\"" + execution.getId() + "\",\"resultCode\":'$?'}'";
+		getCompute().instances().insert(projectId, zone, instance).execute();
 	}
 
 	private String getResultUrl() {
 		return "https://" + SystemProperty.applicationId.get() + ".appspot.com/backendresult";
 	}
 
-	private boolean waitForDisk(String diskName) throws InterruptedException, IOException {
+	private boolean waitForDisk(String diskName, String zone, String projectId) throws InterruptedException, IOException {
 		long timeout = System.currentTimeMillis() + 2 * 60000L;
 		boolean diskCreated = false;
 
 		while (!diskCreated && System.currentTimeMillis() < timeout) {
-			if (checkDisk(diskName)) {
+			if (checkDisk(diskName,zone,projectId)) {
 				diskCreated = true;
 				logger.info("Disk is ready.");
 			} else {
@@ -191,9 +179,9 @@ public class GCEBackendService {
 		}
 	}
 
-	private boolean checkDisk(String diskName) throws IOException {
+	private boolean checkDisk(String diskName, String zone, String projectId) throws IOException {
 		try {
-			Disk disk = getCompute().disks().get(oAuthHelper.getProjectId(), ZONE, diskName).execute();
+			Disk disk = getCompute().disks().get(projectId, zone, diskName).execute();
 			if ("READY".equalsIgnoreCase(disk.getStatus())) {
 				return true;
 			} else {
@@ -206,56 +194,17 @@ public class GCEBackendService {
 		}
 	}
 
-	private void createDisk(String diskName) throws IOException {
+	private void createDisk(String diskName, String zone, String sourceImage, String projectId) throws IOException {
 		Disk disk = new Disk();
 		disk.setName(diskName);
-		getCompute().disks().insert(oAuthHelper.getProjectId(), ZONE, disk).setSourceImage(SOURCE_IMAGE).execute();
+		getCompute().disks().insert(projectId, zone, disk).setSourceImage(sourceImage).execute();
 	}
 
-	public void deleteInstance(String instance) throws IOException {
-		getCompute().instances().delete(oAuthHelper.getProjectId(), ZONE, instance).execute();
+	public void deleteInstance(String instance, String zone, String projectId) throws IOException {
+		getCompute().instances().delete(projectId, zone, instance).execute();
 	}
 
-	public void deleteDisk(String disk) throws IOException {
-		getCompute().disks().delete(oAuthHelper.getProjectId(), ZONE, disk).execute();
-	}
-
-	public List<String> findDisks() throws IOException {
-		List<String> result = new ArrayList<>();
-		String pageToken = null;
-		do {
-			com.google.api.services.compute.Compute.Disks.List list = getCompute().disks().list(oAuthHelper.getProjectId(), ZONE);
-			if (pageToken != null) {
-				list.setPageToken(pageToken);
-			}
-			DiskList diskList = list.execute();
-			if(diskList.getItems()!=null){
-				for (Disk disk : diskList.getItems()) {
-					result.add(disk.getName());
-				}
-			}
-			pageToken = diskList.getNextPageToken();
-		} while (pageToken != null);
-		return result;
-	}
-	
-	public List<String> findRunningInstances() throws IOException {
-		List<String> result = new ArrayList<>();
-		String pageToken = null;
-		do {
-			com.google.api.services.compute.Compute.Instances.List list = getCompute().instances().list(oAuthHelper.getProjectId(), ZONE);
-			list.setFilter("status eq RUNNING");
-			if (pageToken != null) {
-				list.setPageToken(pageToken);
-			}
-			InstanceList instanceList = list.execute();
-			if(instanceList.getItems()!=null){
-				for (Instance instance : instanceList.getItems()) {
-					result.add(instance.getName());
-				}
-			}
-			pageToken = instanceList.getNextPageToken();
-		} while (pageToken != null);
-		return result;
+	public void deleteDisk(String disk, String zone, String projectId) throws IOException {
+		getCompute().disks().delete(projectId, zone, disk).execute();
 	}
 }
