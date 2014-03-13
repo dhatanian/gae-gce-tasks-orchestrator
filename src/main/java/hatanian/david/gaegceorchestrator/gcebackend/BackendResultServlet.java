@@ -25,7 +25,6 @@ public class BackendResultServlet extends HttpServlet {
 	private StorageManager<Execution> executionRepository = new StorageManager<>(Execution.class);
 	private Gson gson = new Gson();
 
-    //TODO needs password
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		ExecutionBackendResult result = gson.fromJson(req.getReader(), ExecutionBackendResult.class);

@@ -6,7 +6,6 @@ import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendService;
 import java.util.Date;
 import java.util.UUID;
 
-//TODO add password for the backend result code --> HASH
 @Entity
 @Unindex
 public class Execution {
@@ -18,7 +17,7 @@ public class Execution {
     private String resultBucket;
 
     private UserScript userScript;
-    private GCEConfiguration gceConfiguration;
+    private GCEConfiguration gceConfiguration = new GCEConfiguration();
     private ExecutionBackendResult backendResult;
 
     @Index
@@ -30,6 +29,16 @@ public class Execution {
 
     public Execution() {
         super();
+    }
+
+    public Execution(ExecutionRequest request) {
+        this();
+        if (request.getGceConfiguration() != null) {
+            setGceConfiguration(request.getGceConfiguration());
+        }
+        setUserScript(request.getUserScript());
+        setResultBucket(request.getResultBucket());
+        setProjectId(request.getProjectId());
     }
 
     public GCEConfiguration getGceConfiguration() {
@@ -97,7 +106,7 @@ public class Execution {
     }
 
     public String getDiskAndInstanceName() {
-        if(diskAndInstanceName==null){
+        if (diskAndInstanceName == null) {
             buildDiskAndInstanceName();
         }
         return diskAndInstanceName;
