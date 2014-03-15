@@ -6,6 +6,7 @@ import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.utils.SystemProperty;
 import hatanian.david.gaegceorchestrator.StorageManager;
 import hatanian.david.gaegceorchestrator.domain.Execution;
 import hatanian.david.gaegceorchestrator.domain.ExecutionRequest;
@@ -22,7 +23,11 @@ public class Executions {
         if(user==null){
             throw new UnauthorizedException("You must authenticate");
         }else if(!user.getEmail().equals("david.hatanian@gmail.com")){
-            throw new UnauthorizedException("You are not allowed to access this API with user "+user.getEmail());
+            if(SystemProperty.environment.value().equals(SystemProperty.Environment.Value.Development) && user.getEmail().equals("example@example.com")){
+                //We allow example@example.com as the default user in the development env
+            }else{
+                throw new UnauthorizedException("You are not allowed to access this API with user "+user.getEmail());
+            }
         }
     }
 
