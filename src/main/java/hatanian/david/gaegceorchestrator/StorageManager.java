@@ -10,7 +10,6 @@ import java.util.Set;
 
 import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.QueryResultIterator;
-import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Query;
 
@@ -115,4 +114,12 @@ public class StorageManager<E> {
 		}
 		return query.limit(limit).list();
 	}
+
+    public QueryResultIterator<E> list(Cursor cursor, int limit, String order) {
+        Query<E> query = ofy().load().type(c).order(order).limit(limit);
+        if(cursor!=null){
+            query = query.startAt(cursor);
+        }
+        return query.iterator();
+    }
 }

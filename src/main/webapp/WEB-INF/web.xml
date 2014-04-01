@@ -50,6 +50,16 @@
     </servlet-mapping>
     <servlet>
         <description></description>
+        <display-name>TestServlet</display-name>
+        <servlet-name>TestServlet</servlet-name>
+        <servlet-class>hatanian.david.gaegceorchestrator.TestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TestServlet</servlet-name>
+        <url-pattern>/admin/test/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <description></description>
         <display-name>CronServlet</display-name>
         <servlet-name>CronServlet</servlet-name>
         <servlet-class>hatanian.david.gaegceorchestrator.cron.CronServlet</servlet-class>

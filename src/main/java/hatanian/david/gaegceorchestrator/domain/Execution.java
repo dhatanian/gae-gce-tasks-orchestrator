@@ -11,6 +11,7 @@ import java.util.UUID;
 public class Execution {
     @Id
     private String id = UUID.randomUUID().toString();
+    @Index
     private Date startDate = new Date();
     private Date endDate;
     private String requester;

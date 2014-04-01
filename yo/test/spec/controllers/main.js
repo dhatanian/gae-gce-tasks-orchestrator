@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Controller: MainCtrl', function () {
+describe('Controller: ExecutionsCtrl', function () {
 
   // load the controller's module
   beforeEach(module('yoApp'));

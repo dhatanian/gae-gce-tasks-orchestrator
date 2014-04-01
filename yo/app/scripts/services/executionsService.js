@@ -52,7 +52,6 @@ var googleLibraryCallback = function () {
 angular.module('yoApp')
     .service('Executionsservice', function Executionsservice($q) {
         // AngularJS will instantiate a singleton by calling "new" on this function
-
         var deferred = $q.defer();
         if (googleLibraryLoaded) {
             deferred.resolve();
@@ -68,6 +67,17 @@ angular.module('yoApp')
                     //TODO defer
                     console.log(resp);
                 });
+            },
+            listExecutions: function(cursor,limit) {
+                var deferred = $q.defer();
+                gapi.client.orchestrator.executions.list({"cursor":cursor,"limit":limit}).execute(function(resp){
+                    if(resp) {
+                        deferred.resolve(resp)
+                    }else{
+                        deferred.reject();
+                    }
+                });
+                return deferred.promise;
             },
             promise: deferred.promise
         }
