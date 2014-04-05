@@ -5,9 +5,7 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.taskqueue.TaskOptions.Method;
-import hatanian.david.gaegceorchestrator.domain.Execution;
-import hatanian.david.gaegceorchestrator.domain.GCEConfiguration;
-import hatanian.david.gaegceorchestrator.domain.UserScript;
+import hatanian.david.gaegceorchestrator.domain.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,10 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class TestServlet extends HttpServlet {
 
@@ -36,6 +31,7 @@ public class TestServlet extends HttpServlet {
 
         List<Execution> executionList = new ArrayList<>();
 
+        Random random = new Random();
         for(int i=0;i<1000;i++){
             Execution e = new Execution();
             e.setDone(false);
@@ -44,6 +40,25 @@ public class TestServlet extends HttpServlet {
             e.setRequester("test-requested@gmail.com");
             e.setResultBucket("test-bucket");
             e.setUserScript(userScript);
+
+            int nextInt = random.nextInt(3);
+            switch (nextInt){
+                case 0:
+                case 1:
+                    //Execution stopped with either 0 or 1 as result code (success or failure)
+                    e.setDone(true);
+                    e.setState(State.DONE);
+                    e.setEndDate(new Date());
+                    ExecutionBackendResult executionBackendResult = new ExecutionBackendResult();
+                    e.setBackendResult(executionBackendResult);
+                    executionBackendResult.setExecutionId(e.getId());
+                    executionBackendResult.setResultCode(nextInt);
+                    break;
+                case 2:
+                    //Do nothing, the execution is not done
+                    break;
+            }
+
             executionList.add(e);
         }
 

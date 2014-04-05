@@ -68,13 +68,14 @@ angular.module('yoApp')
                     console.log(resp);
                 });
             },
-            listExecutions: function(cursor,limit) {
+            listExecutions: function (fromDate, toDate, cursor, limit) {
                 var deferred = $q.defer();
-                gapi.client.orchestrator.executions.list({"cursor":cursor,"limit":limit}).execute(function(resp){
-                    if(resp) {
+                var options = {"cursor":cursor,"limit":limit,"fromDate":fromDate,"toDate":toDate};
+                gapi.client.orchestrator.executions.list(options).execute(function (resp) {
+                    if (resp) {
                         deferred.resolve(resp)
-                    }else{
-                        deferred.reject();
+                    } else {
+                        deferred.reject(resp);
                     }
                 });
                 return deferred.promise;

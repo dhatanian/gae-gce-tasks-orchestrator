@@ -20,6 +20,8 @@ import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 @Api(name = "orchestrator", version = "v1", scopes = {EndPointsConstants.EMAIL_SCOPE}, clientIds = {EndPointsConstants.WEB_CLIENT_ID, com.google.api.server.spi.Constant.API_EXPLORER_CLIENT_ID})
 public class Executions {
@@ -48,8 +50,8 @@ public class Executions {
     }
 
     @ApiMethod(name = "executions.list", httpMethod = "get")
-    public CollectionResponse<Execution> list(@Nullable @Named("cursor") String cursorString,
-                                              @Nullable @Named("limit") Integer limit, User user) throws UnauthorizedException {
+    public CollectionResponse<Execution> list(@Nullable @Named("fromDate") Date fromDate, @Nullable @Named("toDate") Date toDate, @Nullable @Named("cursor") String cursorString,
+                                              @Nullable @Named("limit") Integer limit,User user) throws UnauthorizedException {
         checkAccessRights(user);
 
         Cursor cursor = null;
@@ -58,7 +60,19 @@ public class Executions {
         }
 
         int actualLimit = limit == null ? DEFAULT_LIMIT : limit;
-        QueryResultIterator<Execution> resultIterator = executionStorageManager.list(cursor, actualLimit, "startDate");
+
+        List<String> filterColumns = new ArrayList<>();
+        List<Object> filterValues = new ArrayList<>();
+        if (fromDate != null) {
+            filterColumns.add("startDate >=");
+            filterValues.add(fromDate);
+        }
+        if (toDate != null) {
+            filterColumns.add("startDate <=");
+            filterValues.add(toDate);
+        }
+
+        QueryResultIterator<Execution> resultIterator = executionStorageManager.list(cursor, actualLimit, "startDate", filterColumns.toArray(new String[filterColumns.size()]), filterValues.toArray());
         boolean moreDataLeft = resultIterator.hasNext();
         Collection<Execution> executionList = new ArrayList<>(actualLimit);
         while (resultIterator.hasNext()) {

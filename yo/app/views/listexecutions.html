@@ -1,0 +1,85 @@
+<form class="row form-inline" role="form">
+    <div class="form-group">
+        <label>From</label>
+        <input type="text" datepicker-popup="yyyy-MM-dd" max="todayDate" class="form-control" ng-model="fromDate"
+               ng-required="true" close-text="Close"/>
+    </div>
+    <div class="form-group">
+        <label>To</label>
+        <input type="text" datepicker-popup="yyyy-MM-dd" min="fromDate" max="todayDate" class="form-control"
+               ng-model="toDate" ng-required="true" close-text="Close"/>
+    </div>
+</form>
+<br/>
+<div class="row">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>Start date</th>
+            <th>State</th>
+            <th>End date</th>
+            <th>Requester</th>
+        </tr>
+        </thead>
+        <tbody infinite-scroll="infiniteScroll()" infinite-scroll-distance="7">
+        <tr data-ng-cloak data-ng-repeat="execution in executions" ng-click="showExecutionDetails(execution)"
+            ng-class="getClassForExecution(execution)" class="execution-status-line">
+            <td>{{execution.id}}</td>
+            <td>{{execution.startDate}}</td>
+            <td>{{execution.state}}</td>
+            <td>{{execution.endDate}}</td>
+            <td>{{execution.requester}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <a ng-hide="loading" class="center-block btn btn-default" ng-click="infiniteScroll()">More</a>
+
+    <div ng-show="loading"><img class="center-block" src="/ajax-loader.gif"/></div>
+</div>
+</div>
+
+<script type="text/ng-template" id="executionmodal.html">
+    <div class="modal-header">
+        <h3>Execution {{execution.id}}</h3>
+    </div>
+    <div class="modal-body">
+        <h4>Status</h4>
+        <ul>
+            <li>Start date : {{execution.startDate}}</li>
+            <li>End date : {{execution.endDate}}</li>
+            <li>State : {{execution.state}}</li>
+            <li>Done : {{execution.done}}</li>
+            <li>Requester : {{execution.requester}}</li>
+            <li>Backend result : {{(execution.backendResult==undefined ||
+                execution.backendResult==null)?"N/A":execution.backendResult.resultCode}}
+            </li>
+        </ul>
+        <h4>Script</h4>
+        <ul>
+            <li>Result bucket : {{execution.resultBucket}}</li>
+            <li>Script :
+                <ul>
+                    <li>Bucket : {{execution.userScript.bucket}}</li>
+                    <li>Path : {{execution.userScript.path}}</li>
+                    <li>Timeout : {{execution.userScript.timeoutMs}}</li>
+                </ul>
+            </li>
+        </ul>
+        <h4>Compute Engine</h4>
+        <ul>
+            <li>Project id : {{execution.projectId}}</li>
+            <li>Disk/instance name : {{execution.diskAndInstanceName}}</li>
+            <li>Machine configuration :
+                <ul>
+                    <li>Machine type : {{execution.gceConfiguration.machineType}}</li>
+                    <li>Zone : {{execution.gceConfiguration.zone}}</li>
+                    <li>Image : {{execution.gceConfiguration.image}}</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="close()">Close</button>
+    </div>
+</script>
