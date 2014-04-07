@@ -15,17 +15,24 @@ angular.module('yoApp', [
                 controller: 'ExecutionsCtrl',
                 resolve: {
                     'ExecutionServiceReady': function (Executionsservice) {
-                        // MyServiceData will also be injectable in your controller, if you don't want this you could create a new promise with the $q service
                         return Executionsservice.promise;
                     }
                 }
             })
             .when('/start', {
                 templateUrl: 'views/startexecution.html',
-                controller: 'ExecutionsCtrl',
+                controller: 'StartExecutionCtrl',
                 resolve: {
                     'ExecutionServiceReady': function (Executionsservice) {
-                        // MyServiceData will also be injectable in your controller, if you don't want this you could create a new promise with the $q service
+                        return Executionsservice.promise;
+                    }
+                }
+            })
+            .when('/admins', {
+                templateUrl: 'views/admins.html',
+                controller: 'AdminsCtrl',
+                resolve: {
+                    'ExecutionServiceReady': function (Executionsservice) {
                         return Executionsservice.promise;
                     }
                 }

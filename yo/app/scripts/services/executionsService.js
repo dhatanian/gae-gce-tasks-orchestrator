@@ -63,15 +63,54 @@ angular.module('yoApp')
 
         return {
             startExecution: function (execution) {
+                var deferred = $q.defer();
                 gapi.client.orchestrator.executions.start(execution).execute(function (resp) {
-                    //TODO defer
-                    console.log(resp);
+                    if (resp) {
+                        deferred.resolve(resp)
+                    } else {
+                        deferred.reject(resp);
+                    }
                 });
+                return deferred.promise;
             },
             listExecutions: function (fromDate, toDate, cursor, limit) {
                 var deferred = $q.defer();
-                var options = {"cursor":cursor,"limit":limit,"fromDate":fromDate,"toDate":toDate};
+                var options = {"cursor": cursor, "limit": limit, "fromDate": fromDate, "toDate": toDate};
                 gapi.client.orchestrator.executions.list(options).execute(function (resp) {
+                    if (resp) {
+                        deferred.resolve(resp)
+                    } else {
+                        deferred.reject(resp);
+                    }
+                });
+                return deferred.promise;
+            },
+            addAdmin: function (admin) {
+                var deferred = $q.defer();
+                gapi.client.orchestrator.admins.add(admin).execute(function (resp) {
+                    if (resp) {
+                        deferred.resolve(resp)
+                    } else {
+                        deferred.reject(resp);
+                    }
+                });
+                return deferred.promise;
+            },
+            deleteAdmin: function (admin) {
+                var deferred = $q.defer();
+                gapi.client.orchestrator.admins.delete(admin).execute(function (resp) {
+                    if (resp) {
+                        deferred.resolve(resp)
+                    } else {
+                        deferred.reject(resp);
+                    }
+                });
+                return deferred.promise;
+            },
+            listAdmins: function (cursor, limit) {
+                var deferred = $q.defer();
+                var options = {"cursor": cursor, "limit": limit};
+                gapi.client.orchestrator.admins.list(options).execute(function (resp) {
                     if (resp) {
                         deferred.resolve(resp)
                     } else {

@@ -1,0 +1,28 @@
+<form class="row form-inline" role="form" ng-submit="addAdmin()">
+    <div class="form-group">
+        <label for="admin-email">Add an admin</label>
+        <input id="admin-email" type="email" ng-model="newAdmin"
+               ng-required="true"/>
+        <input type="submit" id="submit" value="Add" class="btn-primary btn"/>
+    </div>
+</form>
+<br/>
+<div class="row">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Email</th>
+            <th>Delete</th>
+        </tr>
+        </thead>
+        <tbody infinite-scroll="infiniteScroll()" infinite-scroll-distance="7">
+        <tr data-ng-cloak data-ng-repeat="admin in admins">
+            <td>{{admin.email}}</td>
+            <td><a class="btn-danger btn" ng-click="deleteAdmin(admin)"><span class="glyphicon glyphicon-remove-circle"></span></a></td>
+        </tr>
+        </tbody>
+    </table>
+    <a ng-hide="loading" class="center-block btn btn-default" ng-click="infiniteScroll()">More</a>
+
+    <div ng-show="loading"><img class="center-block" src="/ajax-loader.gif"/></div>
+</div>

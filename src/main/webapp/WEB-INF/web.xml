@@ -60,6 +60,18 @@
     </servlet-mapping>
     <servlet>
         <description></description>
+        <display-name>RegisterAdminServlet</display-name>
+        <servlet-name>RegisterAdminServlet</servlet-name>
+        <servlet-class>hatanian.david.gaegceorchestrator.RegisterAdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RegisterAdminServlet</servlet-name>
+        <url-pattern>/admin/register/*</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <description></description>
         <display-name>CronServlet</display-name>
         <servlet-name>CronServlet</servlet-name>
         <servlet-class>hatanian.david.gaegceorchestrator.cron.CronServlet</servlet-class>

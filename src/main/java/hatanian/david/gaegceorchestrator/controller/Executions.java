@@ -12,6 +12,7 @@ import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.utils.SystemProperty;
 import hatanian.david.gaegceorchestrator.StorageManager;
+import hatanian.david.gaegceorchestrator.domain.Admin;
 import hatanian.david.gaegceorchestrator.domain.Execution;
 import hatanian.david.gaegceorchestrator.domain.ExecutionRequest;
 import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendException;
@@ -22,15 +23,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Api(name = "orchestrator", version = "v1", scopes = {EndPointsConstants.EMAIL_SCOPE}, clientIds = {EndPointsConstants.WEB_CLIENT_ID, com.google.api.server.spi.Constant.API_EXPLORER_CLIENT_ID})
 public class Executions {
     private static final int DEFAULT_LIMIT = 10;
     private StorageManager<Execution> executionStorageManager = new StorageManager<>(Execution.class);
+    private StorageManager<Admin> adminStorageManager = new StorageManager<>(Admin.class);
+    private Logger log = Logger.getLogger(Executions.class.getName());
 
     private void checkAccessRights(User user) throws UnauthorizedException {
         if (user == null) {
-            throw new UnauthorizedException("You must authenticate");
+            if (SystemProperty.environment.value().equals(SystemProperty.Environment.Value.Development)) {
+                //For offline developement (flight mode)
+                log.warning("Could not check access rights, we will let it pass because this is the environment development, but it will not work on production. Enjoy your flight !");
+            } else {
+                throw new UnauthorizedException("You must authenticate");
+            }
         } else if (!user.getEmail().equals("david.hatanian@gmail.com")) {
             if (SystemProperty.environment.value().equals(SystemProperty.Environment.Value.Development) && user.getEmail().equals("example@example.com")) {
                 //We allow example@example.com as the default user in the development env
@@ -51,7 +60,7 @@ public class Executions {
 
     @ApiMethod(name = "executions.list", httpMethod = "get")
     public CollectionResponse<Execution> list(@Nullable @Named("fromDate") Date fromDate, @Nullable @Named("toDate") Date toDate, @Nullable @Named("cursor") String cursorString,
-                                              @Nullable @Named("limit") Integer limit,User user) throws UnauthorizedException {
+                                              @Nullable @Named("limit") Integer limit, User user) throws UnauthorizedException {
         checkAccessRights(user);
 
         Cursor cursor = null;
@@ -98,4 +107,40 @@ public class Executions {
         return result;
     }
 
+    @ApiMethod(name = "admins.add", httpMethod = "post")
+    public Admin addAdmin(Admin admin, User user) throws UnauthorizedException {
+        checkAccessRights(user);
+        return adminStorageManager.save(admin);
+    }
+
+    @ApiMethod(name = "admins.list", httpMethod = "get")
+    public CollectionResponse<Admin> listAdmins(@Named("cursor") String cursorString,
+                                                @Nullable @Named("limit") Integer limit, User user) throws UnauthorizedException {
+        checkAccessRights(user);
+
+        int actualLimit = limit == null ? DEFAULT_LIMIT : limit;
+        Cursor cursor = null;
+        if (cursorString != null) {
+            cursor = Cursor.fromWebSafeString(cursorString);
+        }
+
+        QueryResultIterator<Admin> resultIterator = adminStorageManager.list(cursor, actualLimit, "startDate", new String[]{}, new Object[]{});
+        boolean moreDataLeft = resultIterator.hasNext();
+        Collection<Admin> adminList = new ArrayList<>(actualLimit);
+        while (resultIterator.hasNext()) {
+            adminList.add(resultIterator.next());
+        }
+
+        CollectionResponse.Builder<Admin> responseBuilder = CollectionResponse.<Admin>builder().setItems(adminList);
+        if (moreDataLeft && !(resultIterator.getCursor() == null)) {
+            responseBuilder.setNextPageToken(resultIterator.getCursor().toWebSafeString());
+        }
+        return responseBuilder.build();
+    }
+
+    @ApiMethod(name = "admins.delete", httpMethod = "delete")
+    public void deleteAdmin(Admin admin, User user) throws UnauthorizedException {
+        checkAccessRights(user);
+        adminStorageManager.delete(admin);
+    }
 }
