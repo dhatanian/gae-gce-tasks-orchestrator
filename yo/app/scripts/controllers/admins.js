@@ -7,11 +7,18 @@ angular.module('yoApp')
         $scope.loading = false;
 
         $scope.addAdmin = function () {
-            Executionsservice.addAdmin({email: $scope.newAdmin});
+            Executionsservice.addAdmin({email: $scope.newAdmin}).then(function(admin){
+                $scope.admins.push(admin);
+            });
+            $scope.newAdmin = "";
         }
 
-        $scope.addAdmin = function (admin) {
-            Executionsservice.deleteAdmin(admin);
+        $scope.deleteAdmin = function (admin) {
+            Executionsservice.deleteAdmin(admin).then(function(){
+                $scope.admins = $scope.admins.filter(function(admin2) {
+                    return admin != admin2;
+                });
+            });
         }
 
         $scope.infiniteScroll = function () {
@@ -27,6 +34,4 @@ angular.module('yoApp')
                 }
             );
         }
-
-        $scope.infiniteScroll();
     });

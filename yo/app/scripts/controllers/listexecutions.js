@@ -50,8 +50,6 @@ angular.module('yoApp')
             }
         }
 
-        $scope.infiniteScroll();
-
         $scope.$watch("fromDate", function () {
             pageToken = null;
             $scope.executions = [];

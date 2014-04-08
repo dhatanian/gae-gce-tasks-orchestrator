@@ -124,7 +124,7 @@ public class Executions {
             cursor = Cursor.fromWebSafeString(cursorString);
         }
 
-        QueryResultIterator<Admin> resultIterator = adminStorageManager.list(cursor, actualLimit, "startDate", new String[]{}, new Object[]{});
+        QueryResultIterator<Admin> resultIterator = adminStorageManager.list(cursor, actualLimit, "email", new String[]{}, new Object[]{});
         boolean moreDataLeft = resultIterator.hasNext();
         Collection<Admin> adminList = new ArrayList<>(actualLimit);
         while (resultIterator.hasNext()) {
