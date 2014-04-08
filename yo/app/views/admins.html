@@ -22,7 +22,7 @@
         </tr>
         </tbody>
     </table>
-    <a ng-hide="loading" class="center-block btn btn-default" ng-click="infiniteScroll()">More</a>
+    <a ng-hide="loading || noMorePage" class="center-block btn btn-default" ng-click="infiniteScroll()">More</a>
 
     <div ng-show="loading"><img class="center-block" src="/ajax-loader.gif"/></div>
 </div>
