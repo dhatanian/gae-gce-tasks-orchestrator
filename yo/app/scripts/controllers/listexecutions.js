@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('yoApp')
-    .controller('ExecutionsCtrl', function ($scope, Executionsservice, dateFilter, $modal) {
+    .controller('ExecutionsCtrl', function ($scope, Executionsservice, $modal) {
         var pageToken = null;
         $scope.noMorePage=false;
         $scope.executions = [];

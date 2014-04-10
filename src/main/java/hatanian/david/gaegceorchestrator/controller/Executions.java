@@ -13,6 +13,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.utils.SystemProperty;
 import hatanian.david.gaegceorchestrator.StorageManager;
 import hatanian.david.gaegceorchestrator.domain.Admin;
+import hatanian.david.gaegceorchestrator.domain.AuthenticatedUser;
 import hatanian.david.gaegceorchestrator.domain.Execution;
 import hatanian.david.gaegceorchestrator.domain.ExecutionRequest;
 import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendException;
@@ -142,5 +143,10 @@ public class Executions {
     public void deleteAdmin(Admin admin, User user) throws UnauthorizedException {
         checkAccessRights(user);
         adminStorageManager.delete(admin);
+    }
+
+    @ApiMethod(name = "security.check", httpMethod = "get")
+    public AuthenticatedUser checkSecurityRights(User user) {
+        return new AuthenticatedUser(user.getEmail(), adminStorageManager.get(user.getEmail()) != null);
     }
 }

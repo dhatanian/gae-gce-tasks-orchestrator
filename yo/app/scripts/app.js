@@ -37,6 +37,9 @@ angular.module('yoApp', [
                     }
                 }
             })
+            .when('/denied', {
+                templateUrl: 'views/denied.html'
+            })
             .otherwise({
                 redirectTo: '/executions'
             });

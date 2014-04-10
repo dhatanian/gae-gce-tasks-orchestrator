@@ -104,6 +104,17 @@
     </servlet-mapping>
 
     <security-constraint>
+        <display-name>All URLs</display-name>
+        <web-resource-collection>
+            <web-resource-name>All Urls</web-resource-name>
+            <url-pattern>//*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <security-constraint>
         <display-name>Secure URLs</display-name>
         <web-resource-collection>
             <web-resource-name>AllAdminUrls</web-resource-name>
@@ -112,8 +123,5 @@
         <auth-constraint>
             <role-name>admin</role-name>
         </auth-constraint>
-        <user-data-constraint>
-            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-        </user-data-constraint>
     </security-constraint>
 </web-app>

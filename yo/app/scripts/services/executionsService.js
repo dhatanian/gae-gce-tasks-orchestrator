@@ -1,8 +1,8 @@
 'use strict';
 
 var googleLibraryLoaded = false;
-var user = "Anonymous user";
-var userPicUrl = "/questionmark.png";
+var user = 'Anonymous user';
+var userPicUrl = '/questionmark.png';
 
 function onGoogleLibraryLoaded() {
     var orchestratorLoaded = false;
@@ -12,13 +12,12 @@ function onGoogleLibraryLoaded() {
     var globalCallback = function () {
         if (orchestratorLoaded && oauthLoaded && userAuthenticated) {
             googleLibraryLoaded = true;
-            //TODO set the username here
             googleLibraryCallback();
         }
     }
 
     var signin = function (immediate, callback) {
-        gapi.auth.authorize({client_id: "102862643449-geb89aoann7dj6tsha4mtkhvos5mk01b.apps.googleusercontent.com", scope: "https://www.googleapis.com/auth/userinfo.email",
+        gapi.auth.authorize({client_id: '102862643449-geb89aoann7dj6tsha4mtkhvos5mk01b.apps.googleusercontent.com', scope: 'https://www.googleapis.com/auth/userinfo.email',
             immediate: immediate}, callback);
     }
 
@@ -40,7 +39,7 @@ function onGoogleLibraryLoaded() {
     }, ROOT);
 
     gapi.client.load('oauth2', 'v2', function () {
-        console.log("oauth2 loaded")
+        console.log('oauth2 loaded')
         oauthLoaded = true;
         globalCallback();
     });
@@ -51,7 +50,7 @@ var googleLibraryCallback = function () {
 
 angular.module('yoApp')
     .service('Executionsservice', function Executionsservice($q) {
-        // AngularJS will instantiate a singleton by calling "new" on this function
+        // AngularJS will instantiate a singleton by calling 'new' on this function
         var deferred = $q.defer();
         if (googleLibraryLoaded) {
             deferred.resolve();
@@ -75,7 +74,7 @@ angular.module('yoApp')
             },
             listExecutions: function (fromDate, toDate, cursor, limit) {
                 var deferred = $q.defer();
-                var options = {"cursor": cursor, "limit": limit, "fromDate": fromDate, "toDate": toDate};
+                var options = {'cursor': cursor, 'limit': limit, 'fromDate': fromDate, 'toDate': toDate};
                 gapi.client.orchestrator.executions.list(options).execute(function (resp) {
                     if (resp) {
                         deferred.resolve(resp)
@@ -99,7 +98,7 @@ angular.module('yoApp')
             deleteAdmin: function (admin) {
                 var deferred = $q.defer();
                 gapi.client.orchestrator.admins.delete(admin).execute(function (resp) {
-                    if (resp==undefined) {
+                    if (resp == undefined) {
                         deferred.resolve(resp)
                     } else {
                         deferred.reject(resp);
@@ -109,8 +108,19 @@ angular.module('yoApp')
             },
             listAdmins: function (cursor, limit) {
                 var deferred = $q.defer();
-                var options = {"cursor": cursor, "limit": limit};
+                var options = {'cursor': cursor, 'limit': limit};
                 gapi.client.orchestrator.admins.list(options).execute(function (resp) {
+                    if (resp) {
+                        deferred.resolve(resp)
+                    } else {
+                        deferred.reject(resp);
+                    }
+                });
+                return deferred.promise;
+            },
+            checkLogin: function () {
+                var deferred = $q.defer();
+                gapi.client.orchestrator.security.check().execute(function (resp) {
                     if (resp) {
                         deferred.resolve(resp)
                     } else {
