@@ -1,42 +1,69 @@
-<form class="form-inline row-fluid row" role="form" ng-submit="startExecution()">
+<form class="row-fluid row" role="form" ng-submit="registerExecution()">
+    <h2>Billing</h2>
+
     <div class="form-group">
-        <h2>Billing</h2>
         <label for="projectId">Project id</label>
         <input id="projectId" type="text" class="form-control" ng-model="executionRequest.projectId"
                ng-required="true"/>
     </div>
 
+    <h2>Script</h2>
+
     <div class="form-group">
-        <h2>Script</h2>
         <label for="resultBucket">Result bucket</label>
         <input id="resultBucket" type="text" class="form-control" ng-model="executionRequest.resultBucket"
                ng-required="true"/>
+    </div>
+    <div class="form-group">
         <label for="scriptBucket">Script bucket</label>
         <input id="scriptBucket" type="text" class="form-control" ng-model="executionRequest.userScript.bucket"
                ng-required="true"/>
+    </div>
+    <div class="form-group">
         <label for="scriptPath">Script path</label>
         <input id="scriptPath" type="text" class="form-control" ng-model="executionRequest.userScript.path"
                ng-required="true"/>
+    </div>
+    <div class="form-group">
         <label for="timeout">Timeout in milliseconds</label>
         <input id="timeout" type="number" min="0" class="form-control" ng-model="executionRequest.userScript.timeoutMs"
                ng-required="true"/>
     </div>
 
+    <h2>Compute Engine</h2>
+
     <div class="form-group">
-        <h2>Compute Engine</h2>
         <label for="machineType">Machine type</label>
         <input id="machineType" type="text" class="form-control"
                ng-model="executionRequest.gceConfiguration.machineType"
                ng-required="true"/>
+    </div>
+    <div class="form-group">
         <label for="zone">Zone</label>
         <input id="zone" type="text" class="form-control" ng-model="executionRequest.gceConfiguration.zone"
                ng-required="true"/>
+    </div>
+    <div class="form-group">
         <label for="image">Machine type</label>
         <input id="image" type="url" class="form-control" ng-model="executionRequest.gceConfiguration.image"
                ng-required="true"/>
     </div>
 
+    <h2>Scheduling</h2>
     <div class="form-group">
-        <input type="submit" id="submit" value="Start execution" class="btn-primary btn form-control"/>
+        <label for="scheduleTheExecution">Schedule the execution instead of executing it immediately</label>
+        <input id="scheduleTheExecution" type="checkbox" class=""
+               ng-model="executionRequest.schedulingPattern.scheduled"
+               ng-required="true"/>
     </div>
+    <div class="form-group" ng-show="executionRequest.schedulingPattern.scheduled">
+        <label for="schedulingCronExpression">CRON Expression (frequencies under 10 minutes will be ignored)</label>
+        <input id="schedulingCronExpression" type="text" class="form-control"
+               ng-model="executionRequest.schedulingPattern.cronExpression"
+               ng-required="false"/>
+    </div>
+
+
+    <input type="submit" id="submit" value="Send" class="btn-primary btn form-control"/>
+
 </form>

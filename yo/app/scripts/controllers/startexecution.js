@@ -19,8 +19,8 @@ angular.module('yoApp')
 
         resetRequest();
 
-        $scope.startExecution = function () {
-            Executionsservice.startExecution({});
+        $scope.registerExecution = function () {
+            Executionsservice.registerExecution($scope.executionRequest);
             resetRequest();
         }
     });

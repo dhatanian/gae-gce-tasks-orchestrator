@@ -12,10 +12,7 @@ import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.utils.SystemProperty;
 import hatanian.david.gaegceorchestrator.StorageManager;
-import hatanian.david.gaegceorchestrator.domain.Admin;
-import hatanian.david.gaegceorchestrator.domain.AuthenticatedUser;
-import hatanian.david.gaegceorchestrator.domain.Execution;
-import hatanian.david.gaegceorchestrator.domain.ExecutionRequest;
+import hatanian.david.gaegceorchestrator.domain.*;
 import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendException;
 import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendService;
 
@@ -30,6 +27,7 @@ import java.util.logging.Logger;
 public class Executions {
     private static final int DEFAULT_LIMIT = 10;
     private StorageManager<Execution> executionStorageManager = new StorageManager<>(Execution.class);
+    private StorageManager<ScheduledExecution> scheduledExecutionStorageManager = new StorageManager<>(ScheduledExecution.class);
     private StorageManager<Admin> adminStorageManager = new StorageManager<>(Admin.class);
     private Logger log = Logger.getLogger(Executions.class.getName());
 
@@ -96,16 +94,54 @@ public class Executions {
         return responseBuilder.build();
     }
 
-    @ApiMethod(name = "executions.start", httpMethod = "post")
-    public Execution startExecution(ExecutionRequest request, User user) throws InterruptedException, GCEBackendException, IOException, UnauthorizedException {
+    @ApiMethod(name = "executions.register", httpMethod = "post")
+    public ExecutionBase registerExecution(ExecutionRequest request, User user) throws InterruptedException, GCEBackendException, IOException, UnauthorizedException {
         checkAccessRights(user);
-        Execution result = new Execution(request);
-        result.setRequester(user.getEmail());
-        //TODO start in task queue
-        GCEBackendService backendService = new GCEBackendService();
-        backendService.startExecution(result);
-        executionStorageManager.save(result);
-        return result;
+        if(request.getSchedulingPattern().isScheduled()){
+            ScheduledExecution result = new ScheduledExecution(request);
+            result.setRequester(user.getEmail());
+            //TODO check CRON expression
+            scheduledExecutionStorageManager.save(result);
+            return result;
+        }else {
+            Execution result = new Execution(request);
+            result.setRequester(user.getEmail());
+            GCEBackendService backendService = new GCEBackendService();
+            backendService.startExecution(result);
+            executionStorageManager.save(result);
+            return result;
+        }
+    }
+
+    @ApiMethod(name = "scheduled.list", httpMethod = "get")
+    public CollectionResponse<ScheduledExecution> listScheduledExecutions(@Named("cursor") String cursorString,
+                                                @Nullable @Named("limit") Integer limit, User user) throws UnauthorizedException {
+        checkAccessRights(user);
+
+        int actualLimit = limit == null ? DEFAULT_LIMIT : limit;
+        Cursor cursor = null;
+        if (cursorString != null) {
+            cursor = Cursor.fromWebSafeString(cursorString);
+        }
+
+        QueryResultIterator<ScheduledExecution> resultIterator = scheduledExecutionStorageManager.list(cursor, actualLimit, "id", new String[]{}, new Object[]{});
+        boolean moreDataLeft = resultIterator.hasNext();
+        Collection<ScheduledExecution> resultList = new ArrayList<>(actualLimit);
+        while (resultIterator.hasNext()) {
+            resultList.add(resultIterator.next());
+        }
+
+        CollectionResponse.Builder<ScheduledExecution> responseBuilder = CollectionResponse.<ScheduledExecution>builder().setItems(resultList);
+        if (moreDataLeft && !(resultIterator.getCursor() == null)) {
+            responseBuilder.setNextPageToken(resultIterator.getCursor().toWebSafeString());
+        }
+        return responseBuilder.build();
+    }
+
+    @ApiMethod(name = "scheduled.delete", httpMethod = "delete")
+    public void deleteScheduledExecution(ScheduledExecution execution, User user) throws UnauthorizedException {
+        checkAccessRights(user);
+        scheduledExecutionStorageManager.delete(execution);
     }
 
     @ApiMethod(name = "admins.add", httpMethod = "post")

@@ -68,9 +68,9 @@ angular.module('yoApp')
                 signin(false, authorizationCallback);
             },
             needsLogin: needsLoginDeferred.promise,
-            startExecution: function (execution) {
+            registerExecution: function (execution) {
                 var deferred = $q.defer();
-                gapi.client.orchestrator.executions.start(execution).execute(function (resp) {
+                gapi.client.orchestrator.executions.register(execution).execute(function (resp) {
                     if (resp) {
                         deferred.resolve(resp)
                     } else {
@@ -117,6 +117,29 @@ angular.module('yoApp')
                 var deferred = $q.defer();
                 var options = {'cursor': cursor, 'limit': limit};
                 gapi.client.orchestrator.admins.list(options).execute(function (resp) {
+                    if (resp) {
+                        deferred.resolve(resp)
+                    } else {
+                        deferred.reject(resp);
+                    }
+                });
+                return deferred.promise;
+            },
+            deleteScheduledExecution: function (execution) {
+                var deferred = $q.defer();
+                gapi.client.orchestrator.scheduled.delete(execution).execute(function (resp) {
+                    if (resp == undefined) {
+                        deferred.resolve(resp)
+                    } else {
+                        deferred.reject(resp);
+                    }
+                });
+                return deferred.promise;
+            },
+            listScheduledExecutions: function (cursor, limit) {
+                var deferred = $q.defer();
+                var options = {'cursor': cursor, 'limit': limit};
+                gapi.client.orchestrator.scheduled.list(options).execute(function (resp) {
                     if (resp) {
                         deferred.resolve(resp)
                     } else {

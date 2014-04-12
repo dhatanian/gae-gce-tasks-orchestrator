@@ -7,7 +7,7 @@ import com.googlecode.objectify.annotation.Unindex;
 @Unindex
 public class ExecutionRequest {
     private String resultBucket;
-
+    private SchedulingPattern schedulingPattern;
     private UserScript userScript;
     private GCEConfiguration gceConfiguration;
     private String projectId;
@@ -46,5 +46,13 @@ public class ExecutionRequest {
 
     public void setProjectId(String projectId) {
         this.projectId = projectId;
+    }
+
+    public SchedulingPattern getSchedulingPattern() {
+        return schedulingPattern;
+    }
+
+    public void setSchedulingPattern(SchedulingPattern schedulingPattern) {
+        this.schedulingPattern = schedulingPattern;
     }
 }

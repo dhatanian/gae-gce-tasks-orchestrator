@@ -6,19 +6,15 @@ import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendService;
 import java.util.Date;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "Execution")
 @Unindex
-public class Execution {
+public class Execution extends ExecutionBase {
     @Id
-    private String id = UUID.randomUUID().toString();
+    protected String id = UUID.randomUUID().toString();
     @Index
     private Date startDate = new Date();
     private Date endDate;
-    private String requester;
-    private String resultBucket;
 
-    private UserScript userScript;
-    private GCEConfiguration gceConfiguration = new GCEConfiguration();
     private ExecutionBackendResult backendResult;
 
     @Index
@@ -26,28 +22,13 @@ public class Execution {
     @Index
     private Boolean done = false;
     private String diskAndInstanceName;
-    private String projectId;
 
     public Execution() {
         super();
     }
 
     public Execution(ExecutionRequest request) {
-        this();
-        if (request.getGceConfiguration() != null) {
-            setGceConfiguration(request.getGceConfiguration());
-        }
-        setUserScript(request.getUserScript());
-        setResultBucket(request.getResultBucket());
-        setProjectId(request.getProjectId());
-    }
-
-    public GCEConfiguration getGceConfiguration() {
-        return gceConfiguration;
-    }
-
-    public void setGceConfiguration(GCEConfiguration gceConfiguration) {
-        this.gceConfiguration = gceConfiguration;
+        super(request);
     }
 
     public ExecutionBackendResult getBackendResult() {
@@ -56,14 +37,6 @@ public class Execution {
 
     public void setBackendResult(ExecutionBackendResult backendResult) {
         this.backendResult = backendResult;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public Date getStartDate() {
@@ -82,14 +55,6 @@ public class Execution {
         this.endDate = endDate;
     }
 
-    public String getRequester() {
-        return requester;
-    }
-
-    public void setRequester(String requester) {
-        this.requester = requester;
-    }
-
     public State getState() {
         return state;
     }
@@ -104,6 +69,14 @@ public class Execution {
 
     public void setDone(Boolean done) {
         this.done = done;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getDiskAndInstanceName() {
@@ -129,27 +102,4 @@ public class Execution {
         setDiskAndInstanceName(buildDiskAndInstanceName());
     }
 
-    public String getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
-    }
-
-    public UserScript getUserScript() {
-        return userScript;
-    }
-
-    public void setUserScript(UserScript userScript) {
-        this.userScript = userScript;
-    }
-
-    public String getResultBucket() {
-        return resultBucket;
-    }
-
-    public void setResultBucket(String resultBucket) {
-        this.resultBucket = resultBucket;
-    }
 }

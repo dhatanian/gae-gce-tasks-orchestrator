@@ -37,6 +37,15 @@ angular.module('yoApp', [
                     }
                 }
             })
+            .when('/scheduled', {
+                templateUrl: 'views/scheduled.html',
+                controller: 'ScheduledCtrl',
+                resolve: {
+                    'ExecutionServiceReady': function (Executionsservice) {
+                        return Executionsservice.promise;
+                    }
+                }
+            })
             .when('/denied', {
                 templateUrl: 'views/denied.html'
             })
