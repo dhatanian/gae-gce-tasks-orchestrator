@@ -3,7 +3,7 @@
 angular.module('yoApp')
     .controller('ScheduledCtrl', function ($scope, Executionsservice, $modal) {
         var pageToken = null;
-        $scope.noMorePage=false;
+        $scope.noMorePage = false;
         $scope.executions = [];
         $scope.loading = false;
 
@@ -15,7 +15,7 @@ angular.module('yoApp')
                     }
                     if (resp.nextPageToken != undefined) {
                         pageToken = resp.nextPageToken;
-                    }else{
+                    } else {
                         $scope.noMorePage = true;
                     }
                     $scope.loading = false;
@@ -23,12 +23,19 @@ angular.module('yoApp')
             );
         }
 
-        $scope.deleteExecution = function (execution) {
-            Executionsservice.deleteScheduledExecution(execution).then(function(){
-                $scope.executions = $scope.executions.filter(function(execution2) {
+        $scope.deleteExecution = function (execution, $event) {
+            Executionsservice.deleteScheduledExecution(execution).then(function () {
+                $scope.executions = $scope.executions.filter(function (execution2) {
                     return execution != execution2;
                 });
             });
+            
+            // Prevent bubbling to showItem.
+            // On recent browsers, only $event.stopPropagation() is needed
+            if ($event.stopPropagation) $event.stopPropagation();
+            if ($event.preventDefault) $event.preventDefault();
+            $event.cancelBubble = true;
+            $event.returnValue = false;
         }
 
         $scope.showExecutionDetails = function (execution) {

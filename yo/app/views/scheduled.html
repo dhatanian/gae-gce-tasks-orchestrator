@@ -14,7 +14,7 @@
             <td>{{execution.id}}</td>
             <td>{{execution.schedulingPattern.cronExpression}}</td>
             <td>{{execution.requester}}</td>
-            <td><a class="btn-danger btn" ng-click="deleteExecution(execution)"><span
+            <td><a class="btn-danger btn" ng-click="deleteExecution(execution, $event)"><span
                     class="glyphicon glyphicon-remove-circle"></span></a></td>
         </tr>
         </tbody>

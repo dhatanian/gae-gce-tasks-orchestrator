@@ -114,7 +114,7 @@ public class Executions {
     }
 
     @ApiMethod(name = "scheduled.list", httpMethod = "get")
-    public CollectionResponse<ScheduledExecution> listScheduledExecutions(@Named("cursor") String cursorString,
+    public CollectionResponse<ScheduledExecution> listScheduledExecutions(@Nullable @Named("cursor") String cursorString,
                                                 @Nullable @Named("limit") Integer limit, User user) throws UnauthorizedException {
         checkAccessRights(user);
 
@@ -151,7 +151,7 @@ public class Executions {
     }
 
     @ApiMethod(name = "admins.list", httpMethod = "get")
-    public CollectionResponse<Admin> listAdmins(@Named("cursor") String cursorString,
+    public CollectionResponse<Admin> listAdmins(@Nullable @Named("cursor") String cursorString,
                                                 @Nullable @Named("limit") Integer limit, User user) throws UnauthorizedException {
         checkAccessRights(user);
 

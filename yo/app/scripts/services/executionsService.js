@@ -105,8 +105,8 @@ angular.module('yoApp')
             deleteAdmin: function (admin) {
                 var deferred = $q.defer();
                 gapi.client.orchestrator.admins.delete(admin).execute(function (resp) {
-                    if (resp == undefined) {
-                        deferred.resolve(resp)
+                    if (resp) {
+                        deferred.resolve(resp);
                     } else {
                         deferred.reject(resp);
                     }
@@ -128,7 +128,7 @@ angular.module('yoApp')
             deleteScheduledExecution: function (execution) {
                 var deferred = $q.defer();
                 gapi.client.orchestrator.scheduled.delete(execution).execute(function (resp) {
-                    if (resp == undefined) {
+                    if (resp) {
                         deferred.resolve(resp)
                     } else {
                         deferred.reject(resp);
