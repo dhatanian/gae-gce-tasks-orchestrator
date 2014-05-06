@@ -2,6 +2,8 @@
 
 This Google App Engine application runs user-defined tasks (shell scripts) on Google Compute Engine. You can use it as a replacement for Windows's scheduled tasks, for example.
 
+![Task creation interface](../blob/master/screenshots/createexecution.png?raw=true)
+
 ##Installation and setup
 To install the App Engine application :
 
