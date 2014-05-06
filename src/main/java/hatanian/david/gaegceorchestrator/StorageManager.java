@@ -116,12 +116,24 @@ public class StorageManager<E> {
     }
 
     public QueryResultIterator<E> list(Cursor cursor, int limit, String order, String[] filterColumns, Object[] filterValues) {
-        Query<E> query = ofy().load().type(c).order(order).limit(limit);
+        Query<E> query = ofy().load().type(c);
+
+        if (order != null) {
+            query = query.order(order);
+        }
+
+        if (limit > 0) {
+            query = query.limit(limit);
+        }
+
         if (cursor != null) {
             query = query.startAt(cursor);
         }
-        for (int i = 0; i < filterColumns.length; i++) {
-            query = query.filter(filterColumns[i], filterValues[i]);
+
+        if (filterColumns != null && filterValues != null) {
+            for (int i = 0; i < filterColumns.length; i++) {
+                query = query.filter(filterColumns[i], filterValues[i]);
+            }
         }
         return query.iterator();
     }

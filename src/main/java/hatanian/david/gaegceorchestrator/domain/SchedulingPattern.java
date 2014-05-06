@@ -2,6 +2,8 @@ package hatanian.david.gaegceorchestrator.domain;
 
 import com.googlecode.objectify.annotation.Embed;
 
+import java.util.Date;
+
 @Embed
 public class SchedulingPattern {
     private boolean scheduled;

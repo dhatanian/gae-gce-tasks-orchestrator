@@ -72,16 +72,6 @@
 
     <servlet>
         <description></description>
-        <display-name>CronServlet</display-name>
-        <servlet-name>CronServlet</servlet-name>
-        <servlet-class>hatanian.david.gaegceorchestrator.cron.CronServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>CronServlet</servlet-name>
-        <url-pattern>/admin/cron</url-pattern>
-    </servlet-mapping>
-    <servlet>
-        <description></description>
         <display-name>BackendResultServlet</display-name>
         <servlet-name>BackendResultServlet</servlet-name>
         <servlet-class>hatanian.david.gaegceorchestrator.gcebackend.BackendResultServlet</servlet-class>

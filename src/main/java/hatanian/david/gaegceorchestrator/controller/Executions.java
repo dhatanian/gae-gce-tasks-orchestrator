@@ -12,11 +12,13 @@ import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.utils.SystemProperty;
 import hatanian.david.gaegceorchestrator.StorageManager;
+import hatanian.david.gaegceorchestrator.cron.CronExpressionComparator;
 import hatanian.david.gaegceorchestrator.domain.*;
 import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendException;
 import hatanian.david.gaegceorchestrator.gcebackend.GCEBackendService;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -95,15 +97,15 @@ public class Executions {
     }
 
     @ApiMethod(name = "executions.register", httpMethod = "post")
-    public ExecutionBase registerExecution(ExecutionRequest request, User user) throws InterruptedException, GCEBackendException, IOException, UnauthorizedException {
+    public ExecutionBase registerExecution(ExecutionRequest request, User user) throws InterruptedException, GCEBackendException, IOException, UnauthorizedException, ParseException {
         checkAccessRights(user);
-        if(request.getSchedulingPattern().isScheduled()){
+        if (request.getSchedulingPattern() != null && request.getSchedulingPattern().isScheduled()) {
             ScheduledExecution result = new ScheduledExecution(request);
             result.setRequester(user.getEmail());
-            //TODO check CRON expression
+            CronExpressionComparator.checkCronExpression(request.getSchedulingPattern().getCronExpression());
             scheduledExecutionStorageManager.save(result);
             return result;
-        }else {
+        } else {
             Execution result = new Execution(request);
             result.setRequester(user.getEmail());
             GCEBackendService backendService = new GCEBackendService();
@@ -115,7 +117,7 @@ public class Executions {
 
     @ApiMethod(name = "scheduled.list", httpMethod = "get")
     public CollectionResponse<ScheduledExecution> listScheduledExecutions(@Nullable @Named("cursor") String cursorString,
-                                                @Nullable @Named("limit") Integer limit, User user) throws UnauthorizedException {
+                                                                          @Nullable @Named("limit") Integer limit, User user) throws UnauthorizedException {
         checkAccessRights(user);
 
         int actualLimit = limit == null ? DEFAULT_LIMIT : limit;

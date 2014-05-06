@@ -18,10 +18,10 @@ public class GCEBackendServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String executionId = req.getParameter("executionId");
-		GCEBackendService reportService = new GCEBackendService();
+		GCEBackendService gceBackendService = new GCEBackendService();
 		Execution execution = executionRepository.get(executionId);
 		try {
-			reportService.startExecution(execution);
+			gceBackendService.startExecution(execution);
 		} catch (InterruptedException | GCEBackendException e) {
 			throw new ServletException("Unable to start GCE backend", e);
 		}
