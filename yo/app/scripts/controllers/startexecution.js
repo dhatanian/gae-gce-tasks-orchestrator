@@ -20,7 +20,13 @@ angular.module('yoApp')
         resetRequest();
 
         $scope.registerExecution = function () {
-            Executionsservice.registerExecution($scope.executionRequest);
-            resetRequest();
+            Executionsservice.registerExecution($scope.executionRequest).then(function (resp) {
+                    toastr.success("Successfully started execution with id : " + resp.id);
+                    resetRequest();
+                },
+                function (resp) {
+                    toastr.error("Unable to start this execution : " + resp.message, "Error " + resp.code);
+                }
+            );
         }
     });

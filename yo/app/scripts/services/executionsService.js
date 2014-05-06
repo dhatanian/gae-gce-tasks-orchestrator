@@ -71,7 +71,7 @@ angular.module('yoApp')
             registerExecution: function (execution) {
                 var deferred = $q.defer();
                 gapi.client.orchestrator.executions.register(execution).execute(function (resp) {
-                    if (resp) {
+                    if (!resp.code) {
                         deferred.resolve(resp)
                     } else {
                         deferred.reject(resp);
@@ -83,7 +83,7 @@ angular.module('yoApp')
                 var deferred = $q.defer();
                 var options = {'cursor': cursor, 'limit': limit, 'fromDate': fromDate, 'toDate': toDate};
                 gapi.client.orchestrator.executions.list(options).execute(function (resp) {
-                    if (resp) {
+                    if (!resp.code) {
                         deferred.resolve(resp)
                     } else {
                         deferred.reject(resp);
@@ -94,7 +94,7 @@ angular.module('yoApp')
             addAdmin: function (admin) {
                 var deferred = $q.defer();
                 gapi.client.orchestrator.admins.add(admin).execute(function (resp) {
-                    if (resp) {
+                    if (!resp.code) {
                         deferred.resolve(resp)
                     } else {
                         deferred.reject(resp);
@@ -105,7 +105,7 @@ angular.module('yoApp')
             deleteAdmin: function (admin) {
                 var deferred = $q.defer();
                 gapi.client.orchestrator.admins.delete(admin).execute(function (resp) {
-                    if (resp) {
+                    if (!resp.code) {
                         deferred.resolve(resp);
                     } else {
                         deferred.reject(resp);
@@ -117,7 +117,7 @@ angular.module('yoApp')
                 var deferred = $q.defer();
                 var options = {'cursor': cursor, 'limit': limit};
                 gapi.client.orchestrator.admins.list(options).execute(function (resp) {
-                    if (resp) {
+                    if (!resp.code) {
                         deferred.resolve(resp)
                     } else {
                         deferred.reject(resp);
@@ -128,7 +128,7 @@ angular.module('yoApp')
             deleteScheduledExecution: function (execution) {
                 var deferred = $q.defer();
                 gapi.client.orchestrator.scheduled.delete(execution).execute(function (resp) {
-                    if (resp) {
+                    if (!resp.code) {
                         deferred.resolve(resp)
                     } else {
                         deferred.reject(resp);
@@ -140,7 +140,7 @@ angular.module('yoApp')
                 var deferred = $q.defer();
                 var options = {'cursor': cursor, 'limit': limit};
                 gapi.client.orchestrator.scheduled.list(options).execute(function (resp) {
-                    if (resp) {
+                    if (!resp.code) {
                         deferred.resolve(resp)
                     } else {
                         deferred.reject(resp);
@@ -151,7 +151,7 @@ angular.module('yoApp')
             checkLogin: function () {
                 var deferred = $q.defer();
                 gapi.client.orchestrator.security.check().execute(function (resp) {
-                    if (resp) {
+                    if (!resp.code) {
                         deferred.resolve(resp)
                     } else {
                         deferred.reject(resp);

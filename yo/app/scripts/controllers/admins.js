@@ -10,8 +10,10 @@ angular.module('yoApp')
         $scope.addAdmin = function () {
             Executionsservice.addAdmin({email: $scope.newAdmin}).then(function (admin) {
                 $scope.admins.push(admin);
+                $scope.newAdmin = "";
+            }, function (error) {
+                toaster.error("Unable to add admin : " + resp.message, "Error " + resp.code);
             });
-            $scope.newAdmin = "";
         }
 
         $scope.deleteAdmin = function (admin) {
@@ -19,6 +21,8 @@ angular.module('yoApp')
                 $scope.admins = $scope.admins.filter(function (admin2) {
                     return admin != admin2;
                 });
+            }, function (error) {
+                toaster.error("Unable to delete admin " + admin.email + " : " + resp.message, "Error " + resp.code);
             });
         }
 

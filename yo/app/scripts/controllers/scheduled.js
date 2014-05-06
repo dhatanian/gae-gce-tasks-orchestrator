@@ -28,8 +28,10 @@ angular.module('yoApp')
                 $scope.executions = $scope.executions.filter(function (execution2) {
                     return execution != execution2;
                 });
+            }, function (error) {
+                toaster.error("Unable to delete this scheduled execution : " + resp.message, "Error " + resp.code);
             });
-            
+
             // Prevent bubbling to showItem.
             // On recent browsers, only $event.stopPropagation() is needed
             if ($event.stopPropagation) $event.stopPropagation();

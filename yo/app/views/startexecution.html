@@ -53,14 +53,13 @@
     <div class="form-group">
         <label for="scheduleTheExecution">Schedule the execution instead of executing it immediately</label>
         <input id="scheduleTheExecution" type="checkbox" class=""
-               ng-model="executionRequest.schedulingPattern.scheduled"
-               ng-required="true"/>
+               ng-model="executionRequest.schedulingPattern.scheduled"/>
     </div>
     <div class="form-group" ng-show="executionRequest.schedulingPattern.scheduled">
         <label for="schedulingCronExpression">CRON Expression (frequencies under 10 minutes will be ignored)</label>
         <input id="schedulingCronExpression" type="text" class="form-control"
                ng-model="executionRequest.schedulingPattern.cronExpression"
-               ng-required="false"/>
+               ng-required="executionRequest.schedulingPattern.scheduled"/>
     </div>
 
 
